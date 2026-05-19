@@ -1,0 +1,78 @@
+import type { MenuCategory } from '../types'
+
+export const MENU_CATEGORIES: MenuCategory[] = [
+  {
+    id: 1,
+    key: 'coffee_tea',
+    title: 'Freshly Brewed Coffee & Fine Selection of Tea',
+    subtitle: 'Unlimited Refills',
+    icon: '☕',
+    required: false,
+    items: [
+      { id: 'ct1', name: 'French Press Coffee', description: 'Hot' },
+      { id: 'ct2', name: 'French Press Coffee', description: 'Ice' },
+      { id: 'ct3', name: 'Black Coffee with Milk', description: 'Hot' },
+      { id: 'ct4', name: 'Black Coffee with Milk', description: 'Ice' },
+      { id: 'ct5', name: 'Fine Selection of Tea', description: 'Your choice of premium teas' },
+    ],
+  },
+  {
+    id: 2,
+    key: 'juice',
+    title: 'Fresh Juice',
+    subtitle: 'Curated Selection',
+    icon: '🥤',
+    required: false,
+    items: [
+      { id: 'j1', name: 'Orange Juice', description: 'Freshly squeezed' },
+      { id: 'j2', name: 'Mango Juice', description: 'Tropical & refreshing' },
+      { id: 'j3', name: 'Pineapple Juice', description: 'Sweet & tangy' },
+    ],
+  },
+  {
+    id: 3,
+    key: 'morning_bowl',
+    title: 'Morning Bowl',
+    subtitle: 'Light & refreshing',
+    icon: '🥣',
+    required: false,
+    items: [
+      { id: 'mb1', name: 'Fresh Milk', description: 'Cold & creamy' },
+      { id: 'mb2', name: 'Cereal with Fresh Milk', description: 'Choice of cereals' },
+      { id: 'mb3', name: 'Plain Yoghurt', description: 'Smooth & fresh' },
+      { id: 'mb4', name: 'Muesli Yoghurt Bowl', description: 'Granola, fruit & honey' },
+    ],
+  },
+  {
+    id: 4,
+    key: 'bakery',
+    title: 'House Bakery',
+    subtitle: 'Served with butter, jam & condiments',
+    icon: '🥐',
+    required: false,
+    items: [
+      { id: 'b1', name: 'Sourdough Set', description: 'Artisan sourdough, freshly baked' },
+      { id: 'b2', name: 'Flatbread Set', description: 'Thin & crispy flatbread' },
+      { id: 'b3', name: 'Gluten-Free White Bread Set', description: 'Light & fluffy' },
+    ],
+  },
+  {
+    id: 5,
+    key: 'main_dish',
+    title: 'Signature Main Dish',
+    subtitle: 'Choose one',
+    icon: '🍳',
+    required: true,
+    items: [
+      { id: 'md1', name: 'Sunny Side Up', description: 'Two perfectly cooked eggs' },
+      { id: 'md2', name: 'Soft Scrambled', description: 'Creamy soft-scrambled eggs' },
+      { id: 'md3', name: 'Eggs Benedict', description: 'Poached egg, hollandaise sauce' },
+      { id: 'md4', name: 'Smoked Salmon Eggs Benedict', description: 'With capers & dill' },
+      { id: 'md5', name: 'Chicken Breast Sous Vide and Boiled Egg', description: 'Juicy & tender' },
+      { id: 'md6', name: 'Smoked Salmon & Cream Cheese Bagel', description: 'With red onion & capers' },
+      { id: 'md7', name: 'Chicken, Bacon, Fried Egg, Tomato and Cream Cheese Bagel', description: 'Loaded bagel' },
+      { id: 'md8', name: 'Khao Kai Yang', description: 'Thai grilled chicken rice' },
+      { id: 'md9', name: 'BaMee Moo Yang', description: 'Thai BBQ pork noodle' },
+    ],
+  },
+]
