@@ -14,6 +14,14 @@ type Selections = {
   special_requests?: string
 }
 
+const CATEGORY_GRADIENTS: Record<string, { from: string; to: string }> = {
+  coffee_tea:   { from: '#2C1208', to: '#7A4523' },
+  juice:        { from: '#1A3D1A', to: '#4E8C3E' },
+  morning_bowl: { from: '#2A1F3D', to: '#7B5EA7' },
+  bakery:       { from: '#4A2200', to: '#B87333' },
+  main_dish:    { from: '#0D2137', to: '#1E6B9A' },
+}
+
 export default function GuestMenu() {
   const navigate = useNavigate()
   const createOrder = useCreateOrder()
@@ -29,17 +37,13 @@ export default function GuestMenu() {
     setSelections((prev) => ({ ...prev, [key]: value }))
   }
 
-  const isSelected = (key: string, name: string) => {
-    return (selections as Record<string, string>)[key] === name
-  }
+  const isSelected = (key: string, name: string) =>
+    (selections as Record<string, string>)[key] === name
 
   const goNext = () => {
     if (typeof step === 'number') {
-      if (step < MENU_CATEGORIES.length - 1) {
-        setStep(step + 1)
-      } else {
-        handleSubmit()
-      }
+      if (step < MENU_CATEGORIES.length - 1) setStep(step + 1)
+      else handleSubmit()
     }
   }
 
@@ -61,54 +65,77 @@ export default function GuestMenu() {
         special_requests: selections.special_requests,
       })
       navigate('/order-sent', { state: { order } })
-    } catch (e) {
+    } catch {
       alert('เกิดข้อผิดพลาด กรุณาลองใหม่')
     }
   }
 
-  // TABLE NUMBER STEP
+  /* ─── TABLE STEP ─────────────────────────────────────────────── */
   if (step === 'table') {
     return (
-      <div className="min-h-screen flex flex-col">
-        {/* Hero */}
-        <div className="bg-[#A89880] text-white text-center py-16 px-6">
-          <h1 className="font-serif text-5xl font-semibold tracking-wide mb-2">SILPA</h1>
-          <div className="w-12 h-px bg-[#C4753A] mx-auto mb-3" />
-          <p className="text-[#C4753A] text-lg font-medium tracking-wide">Brunch Breakfast Experience</p>
-          <p className="text-white/70 text-sm mt-1">Please fill in your details before ordering</p>
+      <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: '#100704' }}>
+        {/* Ambient glow blobs */}
+        <div className="absolute top-[-5rem] right-[-3rem] w-80 h-80 rounded-full blur-3xl"
+          style={{ background: 'radial-gradient(circle, rgba(196,117,58,0.18), transparent 70%)' }} />
+        <div className="absolute top-[30%] left-[-5rem] w-64 h-64 rounded-full blur-3xl"
+          style={{ background: 'radial-gradient(circle, rgba(139,69,19,0.15), transparent 70%)' }} />
+
+        {/* Branding */}
+        <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 pt-16 pb-6 text-center">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="h-px w-8 bg-[#C4753A]/50" />
+            <p className="text-[#C4753A] text-[10px] tracking-[0.5em] uppercase font-medium">Brunch & Breakfast</p>
+            <div className="h-px w-8 bg-[#C4753A]/50" />
+          </div>
+          <h1 className="font-serif text-[6rem] leading-none font-semibold text-white tracking-widest mb-4">
+            SILPA
+          </h1>
+          <p className="text-white/30 text-sm max-w-[16rem] leading-relaxed">
+            Good morning. Let us take care of your breakfast today.
+          </p>
         </div>
 
-        {/* Form */}
-        <div className="flex-1 p-6 max-w-md mx-auto w-full">
-          <div className="mt-6">
-            <label className="block text-sm font-medium text-[#8B4513] mb-2">
-              Table Number <span className="text-red-500">*</span>
-            </label>
-            <button
-              onClick={() => setShowKeypad(true)}
-              className="w-full text-left px-4 py-4 rounded-2xl bg-white border-2 border-[#E8E0D4] text-lg font-semibold text-[#2C1810] focus:outline-none focus:border-[#8B4513]"
-            >
-              {tableNumber || <span className="text-gray-400 font-normal text-base">กดเพื่อใส่หมายเลขโต๊ะ</span>}
-            </button>
-          </div>
+        {/* Form card */}
+        <div className="relative z-10 rounded-t-[2.5rem] px-6 pt-7 pb-10" style={{ background: '#FBF8F3' }}>
+          <div className="w-8 h-1 rounded-full mx-auto mb-6" style={{ background: '#E0D6CC' }} />
 
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-500 mb-2">Special Requests (optional)</label>
+          <h2 className="font-serif text-2xl font-semibold text-[#2C1810] mb-1">Your Table</h2>
+          <p className="text-gray-400 text-sm mb-5">Enter your table number to begin ordering</p>
+
+          {/* Table number button */}
+          <button
+            onClick={() => setShowKeypad(true)}
+            className="w-full flex items-center justify-between px-5 py-4 rounded-2xl border-2 transition-all"
+            style={{
+              background: '#fff',
+              borderColor: tableNumber ? '#8B4513' : '#E8E0D4',
+            }}
+          >
+            <span className="text-sm text-gray-400">Table Number</span>
+            <span className="text-2xl font-bold" style={{ color: tableNumber ? '#2C1810' : '#D4C9BA' }}>
+              {tableNumber || '—'}
+            </span>
+          </button>
+
+          {/* Special requests */}
+          <div className="mt-3">
             <textarea
               value={selections.special_requests || ''}
               onChange={(e) => select('special_requests', e.target.value)}
-              placeholder="Dietary restrictions, allergies..."
-              rows={3}
-              className="w-full px-4 py-3 rounded-2xl bg-white border border-[#E8E0D4] text-sm resize-none focus:outline-none focus:border-[#8B4513]"
+              placeholder="Allergies or special requests (optional)"
+              rows={2}
+              className="w-full px-4 py-3 rounded-2xl border text-sm resize-none focus:outline-none text-[#2C1810] placeholder-gray-300"
+              style={{ background: '#fff', borderColor: '#E8E0D4' }}
             />
           </div>
 
           <button
             disabled={!tableNumber}
             onClick={() => setStep(0)}
-            className="mt-6 w-full py-4 rounded-2xl bg-[#8B4513] text-white text-lg font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+            className="mt-5 w-full py-4 rounded-2xl text-white text-base font-semibold transition-all active:scale-[0.98] disabled:opacity-30"
+            style={{ background: '#2C1810' }}
           >
-            Start Ordering →
+            Begin Ordering →
           </button>
         </div>
 
@@ -124,81 +151,70 @@ export default function GuestMenu() {
     )
   }
 
-  // MENU STEP
+  /* ─── MENU STEP ───────────────────────────────────────────────── */
   if (!currentCat) return null
 
   const catKey = currentCat.key
   const selectedValue = (selections as Record<string, string>)[catKey]
   const canContinue = !currentCat.required || !!selectedValue
+  const grad = CATEGORY_GRADIENTS[catKey] ?? { from: '#2C1810', to: '#8B4513' }
+  const isLastStep = (step as number) === MENU_CATEGORIES.length - 1
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Top bar */}
-      <div className="sticky top-0 bg-[#F5F0E8] border-b border-[#E8E0D4] z-10">
-        {/* Order info */}
-        <div className="bg-[#EDE8DF] px-4 py-2 flex items-center justify-between text-sm">
-          <span className="text-[#8B4513] font-medium">Order for โต๊ะ {tableNumber}</span>
-          <div className="flex gap-1">
-            {MENU_CATEGORIES.map((_, i) => (
-              <div
-                key={i}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  i < (step as number)
-                    ? 'bg-[#8B4513]'
-                    : i === (step as number)
-                    ? 'bg-[#C4753A]'
-                    : 'bg-[#D4C9BA]'
-                }`}
-              />
-            ))}
-          </div>
+    <div className="min-h-screen flex flex-col" style={{ background: '#FAF7F2' }}>
+
+      {/* Category gradient header */}
+      <div
+        className="relative px-5 pt-12 pb-7"
+        style={{ background: `linear-gradient(135deg, ${grad.from}, ${grad.to})` }}
+      >
+        {/* Back button */}
+        <button
+          onClick={goBack}
+          className="flex items-center gap-1 text-sm mb-5 transition-opacity"
+          style={{ color: 'rgba(255,255,255,0.55)' }}
+        >
+          <ChevronLeft size={16} /> ย้อนกลับ
+        </button>
+
+        {/* Progress bar */}
+        <div className="flex gap-1.5 mb-5">
+          {MENU_CATEGORIES.map((_, i) => (
+            <div
+              key={i}
+              className="h-1 rounded-full transition-all duration-300"
+              style={{
+                width: i === (step as number) ? 24 : i < (step as number) ? 16 : 12,
+                background: i <= (step as number) ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.2)',
+              }}
+            />
+          ))}
         </div>
 
-        {/* Category stepper */}
-        <div className="flex items-center gap-3 px-4 py-3 overflow-x-auto scrollbar-hide">
-          {(step as number) > 0 && (
-            <button
-              onClick={goBack}
-              className="flex items-center gap-1 text-sm text-[#8B4513] font-medium shrink-0"
-            >
-              <ChevronLeft size={16} /> ย้อนกลับ
-            </button>
-          )}
-          <div className="flex gap-3 flex-1">
-            {MENU_CATEGORIES.map((cat, i) => (
-              <button
-                key={i}
-                onClick={() => i < (step as number) && setStep(i)}
-                className={`flex flex-col items-center shrink-0 transition-all ${
-                  i === (step as number) ? 'opacity-100' : i < (step as number) ? 'opacity-60 cursor-pointer' : 'opacity-30 cursor-default'
-                }`}
-              >
-                <span className="text-2xl">{cat.icon}</span>
-                {i < (step as number) && (
-                  <CheckCircle2 size={14} className="text-[#8B4513] mt-0.5" />
-                )}
-              </button>
-            ))}
+        {/* Title */}
+        <div className="flex items-end justify-between">
+          <div className="flex-1 mr-3">
+            <p className="text-white/50 text-xs uppercase tracking-widest mb-1">
+              Step {(step as number) + 1} / {MENU_CATEGORIES.length}
+            </p>
+            <h2 className="font-serif text-[1.65rem] font-semibold text-white leading-tight">
+              {currentCat.title}
+            </h2>
+            <p className="text-white/55 text-sm mt-1 italic">{currentCat.subtitle}</p>
           </div>
+          <span className="text-[3rem] opacity-40">{currentCat.icon}</span>
         </div>
-      </div>
 
-      {/* Category header */}
-      <div className="px-4 pt-4 pb-2">
-        <p className="text-xs text-[#8B4513] font-medium uppercase tracking-wider">
-          Step {(step as number) + 1} of {MENU_CATEGORIES.length}
-        </p>
-        <h2 className="font-serif text-2xl font-semibold text-[#2C1810] leading-tight">
-          {currentCat.title}
-        </h2>
-        <p className="text-sm text-gray-500 italic">— {currentCat.subtitle}</p>
         {!currentCat.required && (
-          <p className="text-xs text-gray-400 mt-1">Optional — skip if not needed</p>
+          <span className="inline-block mt-3 text-xs px-3 py-1 rounded-full"
+            style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.6)' }}>
+            Optional — you may skip
+          </span>
         )}
       </div>
 
-      {/* 2-column grid of items */}
-      <div className="flex-1 px-4 pb-4">
+      {/* Items grid */}
+      <div className="flex-1 p-4 pb-36">
         <div className="grid grid-cols-2 gap-3">
           {currentCat.items.map((item) => {
             const full = item.description ? `${item.name} (${item.description})` : item.name
@@ -207,25 +223,37 @@ export default function GuestMenu() {
               <button
                 key={item.id}
                 onClick={() => select(catKey, item.description ? full : item.name)}
-                className={`rounded-2xl overflow-hidden border-2 text-left transition-all ${
-                  selected
-                    ? 'border-[#8B4513] shadow-md'
-                    : 'border-[#E8E0D4] bg-white'
-                }`}
+                className="relative rounded-2xl text-left transition-all active:scale-[0.97] overflow-hidden"
+                style={{
+                  background: '#fff',
+                  boxShadow: selected
+                    ? `0 0 0 2.5px ${grad.to}, 0 8px 20px rgba(0,0,0,0.08)`
+                    : '0 1px 4px rgba(0,0,0,0.06)',
+                }}
               >
-                <div className={`aspect-square flex items-center justify-center text-5xl ${selected ? 'bg-[#8B4513]/10' : 'bg-[#EDE8DF]'}`}>
-                  {currentCat.icon}
-                </div>
-                <div className="p-2">
-                  <p className="text-xs font-semibold text-[#2C1810] leading-tight">{item.name}</p>
-                  {item.description && (
-                    <p className="text-xs text-gray-400 mt-0.5 truncate">{item.description}</p>
-                  )}
+                {/* Top gradient block */}
+                <div
+                  className="relative h-24 flex items-center justify-center"
+                  style={{
+                    background: `linear-gradient(135deg, ${grad.from}${selected ? 'FF' : 'CC'}, ${grad.to}${selected ? 'FF' : 'CC'})`,
+                  }}
+                >
+                  <span className="text-[2.6rem]">{currentCat.icon}</span>
                   {selected && (
-                    <div className="flex items-center gap-1 mt-1">
-                      <CheckCircle2 size={12} className="text-[#8B4513]" />
-                      <span className="text-xs text-[#8B4513] font-medium">Selected</span>
+                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center shadow">
+                      <CheckCircle2 size={14} color={grad.to} />
                     </div>
+                  )}
+                </div>
+
+                {/* Bottom text */}
+                <div
+                  className="p-3"
+                  style={{ background: selected ? '#FBF0E8' : '#fff' }}
+                >
+                  <p className="text-[12px] font-semibold text-[#2C1810] leading-snug">{item.name}</p>
+                  {item.description && (
+                    <p className="text-[11px] text-gray-400 mt-0.5">{item.description}</p>
                   )}
                 </div>
               </button>
@@ -234,18 +262,21 @@ export default function GuestMenu() {
         </div>
       </div>
 
-      {/* Bottom action */}
-      <div className="sticky bottom-0 bg-[#F5F0E8] border-t border-[#E8E0D4] p-4">
+      {/* Sticky bottom */}
+      <div className="fixed bottom-0 left-0 right-0 px-4 py-4 shadow-[0_-8px_24px_rgba(0,0,0,0.07)]"
+        style={{ background: '#fff' }}>
         {selectedValue && (
-          <p className="text-xs text-center text-[#8B4513] font-medium mb-2">
-            ✓ เลือก: {selectedValue}
-          </p>
+          <div className="flex items-center gap-2 mb-2.5 px-1">
+            <CheckCircle2 size={13} color="#8B4513" className="shrink-0" />
+            <p className="text-xs font-medium truncate" style={{ color: '#8B4513' }}>{selectedValue}</p>
+          </div>
         )}
-        <div className="flex gap-3">
+        <div className="flex gap-2.5">
           {!currentCat.required && (
             <button
               onClick={goNext}
-              className="flex-1 py-3 rounded-2xl border border-[#8B4513] text-[#8B4513] font-medium text-sm"
+              className="flex-1 py-3.5 rounded-2xl border-2 text-sm font-medium transition-colors"
+              style={{ borderColor: '#E8E0D4', color: '#9B8B7A' }}
             >
               ข้ามขั้นตอนนี้
             </button>
@@ -253,13 +284,10 @@ export default function GuestMenu() {
           <button
             disabled={!canContinue || createOrder.isPending}
             onClick={goNext}
-            className="flex-1 py-3 rounded-2xl bg-[#8B4513] text-white font-semibold text-sm disabled:opacity-40 transition-opacity"
+            className="flex-1 py-3.5 rounded-2xl text-white font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-30"
+            style={{ background: '#2C1810' }}
           >
-            {createOrder.isPending
-              ? 'กำลังส่ง...'
-              : (step as number) === MENU_CATEGORIES.length - 1
-              ? 'ส่งออเดอร์ →'
-              : 'ถัดไป →'}
+            {createOrder.isPending ? 'กำลังส่ง...' : isLastStep ? 'ส่งออเดอร์ 🙏' : 'ถัดไป →'}
           </button>
         </div>
       </div>

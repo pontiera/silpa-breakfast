@@ -1,4 +1,4 @@
-import { ChefHat, X, Printer } from 'lucide-react'
+import { X, Clock } from 'lucide-react'
 import type { BreakfastOrder, OrderStatus } from '../types'
 import { formatOrderTime } from '../utils/time'
 
@@ -14,77 +14,132 @@ const STATUS_NEXT: Partial<Record<OrderStatus, OrderStatus>> = {
   ready: 'served',
 }
 
-const STATUS_COLOR: Record<OrderStatus, string> = {
-  pending: 'bg-amber-100 text-amber-800',
-  preparing: 'bg-blue-100 text-blue-800',
-  ready: 'bg-green-100 text-green-800',
-  served: 'bg-gray-100 text-gray-600',
-  cancelled: 'bg-red-100 text-red-700',
+const STATUS_CONFIG: Record<OrderStatus, {
+  label: string
+  textColor: string
+  bgColor: string
+  borderColor: string
+  dotColor: string
+}> = {
+  pending:   { label: 'รอรับออเดอร์',   textColor: '#92400E', bgColor: '#FFFBEB', borderColor: '#F59E0B', dotColor: '#F59E0B' },
+  preparing: { label: 'กำลังเตรียม',    textColor: '#1E40AF', bgColor: '#EFF6FF', borderColor: '#3B82F6', dotColor: '#3B82F6' },
+  ready:     { label: 'พร้อมเสิร์ฟ ✓',  textColor: '#065F46', bgColor: '#ECFDF5', borderColor: '#10B981', dotColor: '#10B981' },
+  served:    { label: 'เสิร์ฟแล้ว',     textColor: '#6B7280', bgColor: '#F9FAFB', borderColor: '#D1D5DB', dotColor: '#9CA3AF' },
+  cancelled: { label: 'ยกเลิก',         textColor: '#991B1B', bgColor: '#FEF2F2', borderColor: '#F87171', dotColor: '#F87171' },
+}
+
+const NEXT_BTN: Partial<Record<OrderStatus, { label: string; bg: string }>> = {
+  pending:   { label: 'รับออเดอร์',    bg: '#D97706' },
+  preparing: { label: 'พร้อมเสิร์ฟ',  bg: '#2563EB' },
+  ready:     { label: 'เสิร์ฟแล้ว',   bg: '#059669' },
+}
+
+const ITEM_ROWS: { key: keyof BreakfastOrder; emoji: string; label: string }[] = [
+  { key: 'coffee_tea',   emoji: '☕', label: 'เครื่องดื่ม' },
+  { key: 'juice',        emoji: '🥤', label: 'น้ำผลไม้' },
+  { key: 'morning_bowl', emoji: '🥣', label: 'โบวล์' },
+  { key: 'bakery',       emoji: '🥐', label: 'เบเกอรี่' },
+  { key: 'main_dish',    emoji: '🍳', label: 'เมนูหลัก' },
+  { key: 'special_requests', emoji: '📝', label: 'หมายเหตุ' },
+]
+
+function timeAgo(created_at: string): string {
+  const diff = Math.floor((Date.now() - new Date(created_at).getTime()) / 1000)
+  if (diff < 60) return `${diff}s ago`
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  return `${Math.floor(diff / 3600)}h ago`
 }
 
 export default function OrderCard({ order, orderIndex, onStatusChange }: Props) {
   const nextStatus = STATUS_NEXT[order.status]
+  const cfg = STATUS_CONFIG[order.status]
+  const btnCfg = NEXT_BTN[order.status]
 
-  const items = [
-    order.coffee_tea && { label: 'เครื่องดื่ม', value: order.coffee_tea },
-    order.juice && { label: 'น้ำผลไม้', value: order.juice },
-    order.morning_bowl && { label: 'โบวล์', value: order.morning_bowl },
-    order.bakery && { label: 'เบเกอรี่', value: order.bakery },
-    { label: 'เมนูหลัก', value: order.main_dish },
-    order.special_requests && { label: 'หมายเหตุ', value: order.special_requests },
-  ].filter(Boolean) as { label: string; value: string }[]
+  const filledItems = ITEM_ROWS.filter((r) => !!order[r.key])
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-[#E8E0D4] overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 pt-4 pb-2">
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{
+        background: '#fff',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
+        borderLeft: `4px solid ${cfg.borderColor}`,
+      }}
+    >
+      {/* Status bar */}
+      <div
+        className="flex items-center justify-between px-4 py-2"
+        style={{ background: cfg.bgColor }}
+      >
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-full bg-[#8B4513] text-white flex items-center justify-center font-bold text-sm">
-            #{orderIndex}
-          </div>
-          <div>
-            <p className="font-semibold text-[#2C1810]">Room โต๊ะ {order.room_number}</p>
-            <p className="text-xs text-gray-500">
-              {order.order_number} · {formatOrderTime(order.created_at)}
-            </p>
-          </div>
+          <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: cfg.dotColor }} />
+          <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: cfg.textColor }}>
+            {cfg.label}
+          </span>
         </div>
-        <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLOR[order.status]}`}>
-          {order.status}
-        </span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1" style={{ color: '#9CA3AF' }}>
+            <Clock size={11} />
+            <span className="text-xs">{timeAgo(order.created_at)}</span>
+          </div>
+          <button
+            onClick={() => onStatusChange(order.id, 'cancelled')}
+            className="p-1 rounded-lg transition-colors hover:bg-red-100"
+            style={{ color: '#D1D5DB' }}
+          >
+            <X size={14} />
+          </button>
+        </div>
       </div>
 
-      {/* Items */}
-      <div className="px-4 pb-3 space-y-1">
-        {items.map((item, i) => (
-          <div key={i} className="flex gap-2 text-sm">
-            <span className="text-gray-400 w-20 shrink-0">{item.label}</span>
-            <span className="text-[#2C1810] font-medium">{item.value}</span>
+      {/* Table + order number */}
+      <div className="flex items-center gap-3 px-4 pt-3.5 pb-2">
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 text-white"
+          style={{ background: '#2C1810' }}
+        >
+          {orderIndex}
+        </div>
+        <div className="min-w-0">
+          <p className="font-bold text-xl leading-none" style={{ color: '#2C1810' }}>
+            โต๊ะ {order.room_number}
+          </p>
+          <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
+            {order.order_number} · {formatOrderTime(order.created_at)}
+          </p>
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="mx-4 h-px" style={{ background: '#F3EEE8' }} />
+
+      {/* Menu items */}
+      <div className="px-4 py-3 space-y-2">
+        {filledItems.map((row) => (
+          <div key={row.key} className="flex items-start gap-2.5">
+            <span className="text-base leading-tight mt-0.5">{row.emoji}</span>
+            <div className="min-w-0">
+              <p className="text-[11px] uppercase tracking-wide" style={{ color: '#B8A898' }}>{row.label}</p>
+              <p className="text-sm font-medium leading-snug" style={{ color: '#2C1810' }}>
+                {order[row.key] as string}
+              </p>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Actions */}
-      <div className="flex gap-2 px-4 pb-4">
-        {nextStatus && (
+      {/* Action button */}
+      {btnCfg && nextStatus && (
+        <div className="px-4 pb-4 pt-1">
           <button
             onClick={() => onStatusChange(order.id, nextStatus)}
-            className="flex items-center gap-1 px-3 py-2 rounded-xl bg-[#8B4513] text-white text-sm font-medium flex-1 justify-center hover:bg-[#7A3C11] transition-colors"
+            className="w-full py-3 rounded-xl text-white font-semibold text-sm transition-all active:scale-[0.98]"
+            style={{ background: btnCfg.bg }}
           >
-            <ChefHat size={16} />
-            {nextStatus === 'preparing' ? 'รับออเดอร์' : nextStatus === 'ready' ? 'พร้อมเสิร์ฟ' : 'เสิร์ฟแล้ว'}
+            ✓ {btnCfg.label}
           </button>
-        )}
-        <button
-          onClick={() => onStatusChange(order.id, 'cancelled')}
-          className="p-2 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
-        >
-          <X size={18} />
-        </button>
-        <button className="p-2 rounded-xl bg-gray-50 text-gray-500 hover:bg-gray-100 transition-colors">
-          <Printer size={18} />
-        </button>
-      </div>
+        </div>
+      )}
     </div>
   )
 }
