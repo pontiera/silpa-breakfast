@@ -165,30 +165,37 @@ export default function GuestMenu() {
 
       {/* Category gradient header */}
       <div
-        className="relative px-5 pt-12 pb-7"
+        className="relative px-5 pt-10 pb-7"
         style={{ background: `linear-gradient(135deg, ${grad.from}, ${grad.to})` }}
       >
-        {/* Back button */}
-        <button
-          onClick={goBack}
-          className="flex items-center gap-1 text-sm mb-5 transition-opacity"
-          style={{ color: 'rgba(255,255,255,0.55)' }}
-        >
-          <ChevronLeft size={16} /> ย้อนกลับ
-        </button>
+        {/* Back button + Progress bar — same row */}
+        <div className="flex items-center gap-3 mb-5">
+          <button
+            onClick={goBack}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-semibold text-sm shrink-0 transition-all active:scale-95"
+            style={{
+              background: 'rgba(255,255,255,0.18)',
+              color: '#fff',
+              border: '1px solid rgba(255,255,255,0.25)',
+              minWidth: 72,
+            }}
+          >
+            <ChevronLeft size={16} strokeWidth={2.5} /> Back
+          </button>
 
-        {/* Progress bar */}
-        <div className="flex gap-1.5 mb-5">
-          {MENU_CATEGORIES.map((_, i) => (
-            <div
-              key={i}
-              className="h-1 rounded-full transition-all duration-300"
-              style={{
-                width: i === (step as number) ? 24 : i < (step as number) ? 16 : 12,
-                background: i <= (step as number) ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.2)',
-              }}
-            />
-          ))}
+          {/* Progress dots */}
+          <div className="flex gap-1.5 flex-1">
+            {MENU_CATEGORIES.map((_, i) => (
+              <div
+                key={i}
+                className="h-1 rounded-full transition-all duration-300"
+                style={{
+                  width: i === (step as number) ? 24 : i < (step as number) ? 16 : 12,
+                  background: i <= (step as number) ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.2)',
+                }}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Title */}
